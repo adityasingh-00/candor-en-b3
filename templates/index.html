@@ -1,0 +1,227 @@
+
+{% extends "base.html" %}
+{% block title %}Seating dashboard · CANDOR{% endblock %}
+
+{% block content %}
+<section class="page-heading">
+  <div>
+    <h1>Seating dashboard</h1>
+    <p class="muted">
+      CANDOR EN-83
+      <span class="dot-separator">•</span>
+      Status for {{ display_date }}
+    </p>
+  </div>
+
+  <div class="heading-actions">
+
+    <button
+      class="btn btn-secondary"
+      id="listToggle"
+      type="button"
+      aria-pressed="false"
+    >
+      List view
+    </button>
+  </div>
+</section>
+
+<!-- Seat summary -->
+<section class="stats-grid" aria-label="Seat summary">
+  <article class="stat-card">
+    <span class="stat-label">Total seats</span>
+    <strong>{{ counts.total }}</strong>
+  </article>
+
+  <article class="stat-card">
+    <span class="stat-label">
+      <span class="status-dot available"></span>
+      Available
+    </span>
+    <strong>{{ counts.available }}</strong>
+    <span class="stat-note">Available on their seat</span>
+  </article>
+
+  <article class="stat-card">
+    <span class="stat-label">
+      <span class="status-dot wfh"></span>
+      WFH
+    </span>
+    <strong>{{ counts.wfh }}</strong>
+    <span class="stat-note">Working from home</span>
+  </article>
+
+  <article class="stat-card">
+    <span class="stat-label">
+      <span class="status-dot leave"></span>
+      Leave
+    </span>
+    <strong>{{ counts.leave }}</strong>
+    <span class="stat-note">On leave</span>
+  </article>
+</section>
+
+<!-- Floor plan -->
+<section class="map-card" id="mapPanel">
+  <div class="section-heading">
+    <div>
+      <h2>Floor plan</h2>
+      <p class="muted">Select a seat to view or update its details.</p>
+    </div>
+
+    <div class="legend">
+      <span><i class="status-dot available"></i> Available</span>
+      <span><i class="status-dot wfh"></i> WFH</span>
+      <span><i class="status-dot leave"></i> Leave</span>
+    </div>
+  </div>
+
+  <div class="floor-layout">
+
+    <!-- A ZONE -->
+    <section class="zone zone-a">
+
+      <div class="zone-a-layout">
+
+        <!-- Column 1: two empty positions followed by two Flexi seats -->
+        <div class="zone-a-column zone-a-left-column">
+          <div class="zone-a-empty" aria-hidden="true"></div>
+          <div class="zone-a-empty" aria-hidden="true"></div>
+
+          {% for emp in employees if emp.row == 1 and emp.seat_no in ['4F-324', '4F-323'] %}
+            {% include "_seat.html" %}
+          {% endfor %}
+        </div>
+
+        <!-- Column 2: Pratik, Piyush, Sourav, Ritesh -->
+        <div class="zone-a-column zone-a-right-column">
+          {% for emp in employees if emp.row == 1 and emp.seat_no in ['4F-325(1)', '4F-325(2)', '4F-325', '4F-326'] %}
+            {% include "_seat.html" %}
+          {% endfor %}
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Shared area beside A Zone -->
+    <aside class="landmark">
+      <span class="landmark-icon" aria-hidden="true">▦</span>
+      <strong>EN-B4</strong>
+    </aside>
+
+    <!-- B ZONE -->
+    <section class="zone zone-b">
+
+      <div class="seat-grid b-grid">
+        {% for emp in employees if emp.row == 2 %}
+          {% include "_seat.html" %}
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- C & D ZONE -->
+    <section class="zone zone-cd">
+
+      <div class="cd-content">
+
+        <div class="meeting-room">
+          <span aria-hidden="true">▤</span>
+          <strong>Meeting area</strong>
+        </div>
+
+        <div class="cd-seat-groups">
+          <div class="seat-grid cd-grid">
+            {% for emp in employees if emp.row == 3 %}
+              {% include "_seat.html" %}
+            {% endfor %}
+          </div>
+
+          <div class="seat-grid cd-grid">
+            {% for emp in employees if emp.row == 4 %}
+              {% include "_seat.html" %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="landmark erd">
+          <strong>ERD-BD</strong>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <p class="map-footnote">
+    <span aria-hidden="true">ⓘ</span>
+    On small screens, scroll the floor plan horizontally or switch to List view.
+  </p>
+</section>
+
+<!-- List view -->
+<section class="list-card" id="listPanel" hidden>
+  <div class="section-heading">
+    <div>
+      <h2>All seats</h2>
+      <p class="muted">Search and open a seat to update its information.</p>
+    </div>
+
+    <label class="filter-label">
+      Status
+      <select id="statusFilter">
+        <option value="">All statuses</option>
+        <option value="Available">Available</option>
+        <option value="WFH">WFH</option>
+        <option value="Leave">Leave</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Seat</th>
+          <th>Employee</th>
+          <th>Zone / row</th>
+          <th>Status</th>
+          <th>Comment</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody id="seatTableBody">
+        {% for emp in employees %}
+          <tr
+            class="employee-row"
+            data-search="{{ (emp.name ~ ' ' ~ emp.seat_no ~ ' ' ~ emp.comment)|lower }}"
+            data-status="{{ emp.status }}"
+          >
+            <td><strong>{{ emp.seat_no }}</strong></td>
+            <td>{{ emp.name }}</td>
+            <td>Row {{ emp.row }}</td>
+            <td>
+              <span class="pill {{ emp.status|lower }}">
+                {{ emp.status }}
+              </span>
+            </td>
+            <td class="comment-cell">{{ emp.comment }}</td>
+            <td>
+              <a
+                class="table-action"
+                href="{{ url_for('update', employee_id=emp.id) }}"
+              >
+                Edit
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <p class="empty-state" id="emptyState" hidden>
+    No seats match your search.
+  </p>
+</section>
+{% endblock %}

@@ -1,0 +1,27 @@
+
+<a
+  class="seat {{ emp.status|lower }}"
+  href="{{ url_for('update', employee_id=emp.id) }}"
+  data-search="{{ (emp.name ~ ' ' ~ emp.seat_no ~ ' ' ~ emp.comment)|lower }}"
+  data-status="{{ emp.status }}"
+  title="Open {{ emp.seat_no }} — {{ emp.name }}"
+>
+  <span class="seat-top">
+    <span class="seat-number">{{ emp.seat_no }}</span>
+    <span class="seat-indicator" aria-hidden="true"></span>
+  </span>
+
+  <strong class="seat-name">{{ emp.name }}</strong>
+
+  <span class="seat-status">{{ emp.status }}</span>
+
+  {% if emp.comment and emp.comment != emp.status and emp.comment != "Available" %}
+    <span class="seat-comment">{{ emp.comment }}</span>
+  {% endif %}
+
+  {% if emp.replacement %}
+    <span class="seat-replacement">
+      Replacement: {{ emp.replacement }}
+    </span>
+  {% endif %}
+</a>

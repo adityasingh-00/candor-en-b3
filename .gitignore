@@ -1,0 +1,9 @@
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+instance/
+.env
+.ebextensions/*.config.local
+.DS_Store
+employee.db
