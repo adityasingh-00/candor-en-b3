@@ -71,16 +71,10 @@ def create_app():
         "SECRET_KEY", "local-only-change-this-secret"
     )
 
-    if os.environ.get("RENDER"):
-        database_url = os.environ.get(
-            "DATABASE_URL",
-            "sqlite:////var/data/employee.db"
-        )
-    else:
-        database_url = os.environ.get(
-            "DATABASE_URL",
-            "sqlite:///employee.db"
-        )
+    database_url = os.environ.get(
+        "DATABASE_URL",
+        "sqlite:///employee.db"
+    )
 
     # Render PostgreSQL URL compatibility
     if database_url.startswith("postgres://"):
