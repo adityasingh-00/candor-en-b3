@@ -1,81 +1,132 @@
 
 {% extends "base.html" %}
+
 {% block title %}Update {{ emp.seat_no }} · CANDOR{% endblock %}
 
 {% block content %}
+
 <div class="form-page">
-  <a class="back-link" href="{{ url_for('index') }}">
-    ← Back to floor plan
-  </a>
 
-  <section class="edit-card">
-    <div class="edit-header">
-      <div>
-        <p class="eyebrow">SEAT DETAILS · ROW {{ emp.row }}</p>
-        <h1>{{ emp.seat_no }}</h1>
-        <p class="muted">Update the current seating information.</p>
-      </div>
+    <a class="back-link" href="{{ url_for('index') }}">
+        ← Back to floor plan
+    </a>
 
-      <span class="pill {{ emp.status|lower }}">
-        {{ emp.status }}
-      </span>
-    </div>
+    <section class="edit-card">
 
-    <div class="employee-summary">
-      <span class="avatar">{{ emp.name[:1]|upper }}</span>
-      <div>
-        <strong>{{ emp.name }}</strong>
-        <small>Assigned employee / seat record</small>
-      </div>
-    </div>
+        <div class="edit-header">
+            <div>
+                <p class="eyebrow">
+                    SEAT DETAILS · ROW {{ emp.row }}
+                </p>
 
-    <form method="post" class="edit-form">
-      <label for="status">Seat status</label>
+                <h1>{{ emp.seat_no }}</h1>
 
-      <select id="status" name="status" required>
-        {% for status in status_choices %}
-          <option value="{{ status }}"
-            {% if emp.status == status %}selected{% endif %}>
-            {{ status }}
-          </option>
-        {% endfor %}
-      </select>
+                <p class="muted">
+                    Update the current seating information.
+                </p>
+            </div>
 
-      <label for="comment">
-        Comment
-        <span class="label-note">Optional · max 500 characters</span>
-      </label>
+            <span class="pill {{ emp.status|lower }}">
+                {{ emp.status }}
+            </span>
+        </div>
 
-      <textarea
-        id="comment"
-        name="comment"
-        maxlength="500"
-        rows="4"
-        placeholder="Add a note about this seat…"
-      >{{ emp.comment }}</textarea>
 
-      <label for="replacement">
-        Replacement employee
-        <span class="label-note">Optional</span>
-      </label>
+        <div class="employee-summary">
 
-      <input
-        id="replacement"
-        name="replacement"
-        maxlength="100"
-        value="{{ emp.replacement }}"
-        placeholder="Enter replacement name"
-      >
+            <span class="avatar">
+                {{ emp.name[:1]|upper }}
+            </span>
 
-      <div class="form-actions">
-        <a class="btn btn-secondary" href="{{ url_for('index') }}">
-          Cancel
-        </a>
-        <button class="btn btn-primary" type="submit">
-          Save changes
-        </button>
-      </div>
-    </form>
-  </section>
+            <div>
+                <strong>{{ emp.name }}</strong>
+                <small>Assigned employee / seat record</small>
+            </div>
+
+        </div>
+
+
+        <form method="post" class="edit-form">
+
+            <!-- SEAT STATUS -->
+            <label for="status">Seat status</label>
+
+            <select id="status" name="status" required>
+
+                <option value="Available"
+                    {% if emp.status == "Available" %}selected{% endif %}>
+                    Available
+                </option>
+
+                <option value="WFH"
+                    {% if emp.status == "WFH" %}selected{% endif %}>
+                    WFH
+                </option>
+
+                <option value="Leave"
+                    {% if emp.status == "Leave" %}selected{% endif %}>
+                    Leave
+                </option>
+                <option value="Other" {% if emp.status == "Other" %}selected{% endif %}>Other</option>
+
+            </select>
+
+
+            <!-- COMMENT -->
+            <label for="comment">
+                Comment
+                <span class="label-note">
+                    Optional · max 500 characters
+                </span>
+            </label>
+
+            <textarea
+                id="comment"
+                name="comment"
+                maxlength="500"
+                rows="4"
+                placeholder="Add a note about this seat…"
+            >{{ emp.comment }}</textarea>
+
+
+            <!-- REPLACEMENT -->
+            <label for="replacement">
+                Replacement employee
+                <span class="label-note">Optional</span>
+            </label>
+
+            <input
+                id="replacement"
+                name="replacement"
+                maxlength="100"
+                value="{{ emp.replacement }}"
+                placeholder="Enter replacement name"
+            >
+
+
+            <!-- ACTIONS -->
+            <div class="form-actions">
+
+                <a
+                    class="btn btn-secondary"
+                    href="{{ url_for('index') }}"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                >
+                    Save changes
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
 </div>
+
 {% endblock %}

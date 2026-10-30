@@ -157,6 +157,18 @@
     color: #8a4b08;
 }
 
+/* Other status */
+.seat.other {
+    background-color: #f0eaff;
+    border-color: #d5c2ff;
+    color: #59369a;
+}
+
+.seat.other .seat-status,
+.pill.other {
+    color: #7045b5;
+}
+
 .seat.leave .seat-status,
 .pill.leave {
     color: #a45b0a;
@@ -186,4 +198,106 @@
 
 .status-dot.leave {
     background-color: #f59e0b;
+}
+
+/* =====================================================
+   E ZONE - FIVE NEW SEATS BELOW C & D ZONE
+   ===================================================== */
+
+/* E Zone occupies a separate full-width row */
+.zone-e {
+    grid-column: 1 / -1;
+    grid-row: 4;
+    width: 100%;
+    margin-top: 2px;
+}
+
+/* Five seats in one horizontal row */
+.e-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 12px;
+    width: 100%;
+}
+
+/* E Zone seat cards */
+.zone-e .seat {
+    min-height: 120px;
+}
+
+/* Keep the existing C & D layout unchanged */
+.zone-cd {
+    grid-column: 1 / -1;
+    grid-row: 3;
+}
+
+/* Tablet layout */
+@media (max-width: 1100px) {
+
+    .zone-e {
+        grid-column: 1 / -1;
+        grid-row: 4;
+    }
+
+    .e-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+}
+
+/* Mobile layout */
+@media (max-width: 760px) {
+
+    .zone-e {
+        width: 100%;
+        grid-column: auto;
+        grid-row: auto;
+        overflow-x: visible;
+    }
+
+    .e-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .zone-e .seat {
+        min-height: 105px;
+    }
+
+}
+
+/* Very small screens */
+@media (max-width: 380px) {
+
+    .e-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+@media (min-width: 761px) {
+  .zone-a {
+    width: 50%;
+    justify-self: start;
+  }
+}
+@media (min-width: 761px) {
+  .floor-layout > .landmark:not(.erd) {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    margin-left: 28%;
+    width: 72%;
+  }
+}
+
+/* Other status - purple indicator dot */
+.seat.other .seat-indicator {
+    background-color: #7045b5 !important;
+}
+
+.status-dot.other {
+    background-color: #7045b5;
 }
