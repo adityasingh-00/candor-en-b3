@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Login · CANDOR{% endblock %}
+
+{% block content %}
+
+<div class="form-page">
+
+    <section class="edit-card">
+
+        <div class="edit-header">
+            <div>
+                <p class="eyebrow">CANDOR EN-B3</p>
+                <h1>Welcome</h1>
+                <p class="muted">
+                    Enter the access password to open the seating dashboard.
+                </p>
+            </div>
+        </div>
+
+        <form method="POST" class="edit-form">
+
+            <label for="password">Access password</label>
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter password"
+                required
+                autofocus
+            >
+
+            {% for category, message in get_flashed_messages(with_categories=true) %}
+                <p class="flash-message {{ category }}">
+                    {{ message }}
+                </p>
+            {% endfor %}
+
+            <div class="form-actions">
+                <button class="btn btn-primary" type="submit">
+                    Sign in
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}

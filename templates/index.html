@@ -16,12 +16,17 @@
     </div>
 
     <div class="heading-actions">
-      <a href="YOUR_SHAREPOINT_PDF_LINK"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="btn btn-primary">
-          View Roaster Pdf
-      </a>
+        <a href="YOUR_SHAREPOINT_PDF_LINK"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-primary">
+            View Roaster Pdf
+        </a>
+        <form method="POST" action="{{ url_for('logout') }}">
+            <button class="btn btn-secondary" type="submit">
+                Logout
+            </button>
+       </form>
 
         <button
             class="btn btn-secondary"

@@ -5,8 +5,14 @@ from zoneinfo import ZoneInfo
 import click
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+import hmac
+from functools import wraps
+
+from flask import session
+from dotenv import load_dotenv
 
 db = SQLAlchemy()
+load_dotenv()
 
 
 
@@ -61,15 +67,16 @@ VALID_STATUSES = {"Available", "WFH", "Leave", "Other"}
 
 def create_app():
     app = Flask(__name__)
-
-
+    app.config["APP_PASSWORD"] = os.environ.get("APP_PASSWORD")
+    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=12)
     app.config["APP_TIMEZONE"] = os.environ.get(
         "APP_TIMEZONE", "Asia/Kolkata"
     )
 
-    app.config["SECRET_KEY"] = os.environ.get(
-        "SECRET_KEY", "local-only-change-this-secret"
-    )
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+
+    if not app.config["SECRET_KEY"]:
+        raise RuntimeError("SECRET_KEY is not configured.")
 
     database_url = os.environ.get(
         "DATABASE_URL",
@@ -100,7 +107,15 @@ def create_app():
     )
 
     db.init_app(app)
+    def login_required(view):
+        @wraps(view)
+        def wrapped_view(*args, **kwargs):
+            if not session.get("authenticated"):
+                return redirect(url_for("login"))
 
+            return view(*args, **kwargs)
+
+        return wrapped_view
 
     @app.cli.command("init-db")
     def init_db():
@@ -183,8 +198,46 @@ def create_app():
             settings.last_reset_date = today
 
             db.session.commit()
+    
 
+    @app.route("/login", methods=["GET", "POST"])
+    def login():
+
+        if session.get("authenticated"):
+            return redirect(url_for("index"))
+
+        if request.method == "POST":
+
+            entered_password = request.form.get("password", "")
+            actual_password = app.config.get("APP_PASSWORD")
+
+            if not actual_password:
+                return "Login is not configured on the server.", 503
+
+            if hmac.compare_digest(
+                entered_password,
+                actual_password
+            ):
+                session.clear()
+                session["authenticated"] = True
+                session.permanent = True
+
+                return redirect(url_for("index"))
+
+            flash("Incorrect password. Please try again.", "error")
+
+        return render_template("login.html")
+
+
+    @app.post("/logout")
+    def logout():
+
+        session.clear()
+
+        return redirect(url_for("login"))
+    
     @app.get("/")
+    @login_required
     def index():
 
         reset_seats_if_due()
@@ -239,6 +292,7 @@ def create_app():
         "/update/<int:employee_id>",
         methods=["GET", "POST"]
     )
+    @login_required
     def update(employee_id):
 
         emp = db.get_or_404(Employee, employee_id)
