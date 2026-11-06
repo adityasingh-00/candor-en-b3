@@ -1,27 +1,38 @@
 
 <a
-  class="seat {{ emp.status|lower }}"
-  href="{{ url_for('update', employee_id=emp.id) }}"
-  data-search="{{ (emp.name ~ ' ' ~ emp.seat_no ~ ' ' ~ emp.comment)|lower }}"
-  data-status="{{ emp.status }}"
-  title="Open {{ emp.seat_no }} — {{ emp.name }}"
+    href="{{ url_for('update', employee_id=emp.id) }}"
+    class="seat {{ emp.view_status|lower }}"
+    aria-label="Edit {{ emp.seat_no }} - {{ emp.name }} - {{ emp.view_status }}"
 >
-  <span class="seat-top">
-    <span class="seat-number">{{ emp.seat_no }}</span>
-    <span class="seat-indicator" aria-hidden="true"></span>
-  </span>
 
-  <strong class="seat-name">{{ emp.name }}</strong>
+    <div class="seat-top">
 
-  <span class="seat-status">{{ emp.status }}</span>
+        <span class="seat-number">
+            {{ emp.seat_no }}
+        </span>
 
-  {% if emp.comment and emp.comment != emp.status and emp.comment != "Available" %}
-    <span class="seat-comment">{{ emp.comment }}</span>
-  {% endif %}
+        <span class="seat-indicator"></span>
 
-  {% if emp.replacement %}
-    <span class="seat-replacement">
-      Replacement: {{ emp.replacement }}
+    </div>
+
+    <strong class="seat-name">
+        {{ emp.name }}
+    </strong>
+
+    <span class="seat-status">
+        {{ emp.view_status }}
     </span>
-  {% endif %}
+
+    {% if emp.view_replacement %}
+        <span class="seat-replacement">
+            Replacement: {{ emp.view_replacement }}
+        </span>
+    {% endif %}
+
+    {% if emp.view_comment and emp.view_comment != emp.view_status %}
+        <span class="seat-replacement">
+            {{ emp.view_comment }}
+        </span>
+    {% endif %}
+
 </a>

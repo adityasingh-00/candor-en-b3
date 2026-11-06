@@ -7,7 +7,7 @@
 <section class="page-heading">
     <div>
         <p class="eyebrow">WORKPLACE / FLOOR PLAN</p>
-        <h1>Seating dashboard</h1>
+        <h1>Seating/Availability dashboard</h1>
         <p class="muted">
             CANDOR EN-83
             <span class="dot-separator">•</span>
@@ -22,11 +22,6 @@
             class="btn btn-primary">
             View Roaster Pdf
         </a>
-        <form method="POST" action="{{ url_for('logout') }}">
-            <button class="btn btn-secondary" type="submit">
-                Logout
-            </button>
-       </form>
 
         <button
             class="btn btn-secondary"
@@ -42,12 +37,14 @@
 
 <!-- SEAT SUMMARY -->
 
+
+<!-- SEAT SUMMARY -->
+
 <section class="stats-grid" aria-label="Seat summary">
 
     <article class="stat-card">
         <span class="stat-label">Total seats</span>
         <strong>{{ counts.total }}</strong>
-        <span class="stat-note"></span>
     </article>
 
     <article class="stat-card">
@@ -56,7 +53,6 @@
             Available
         </span>
         <strong>{{ counts.available }}</strong>
-        <span class="stat-note">Available on seat</span>
     </article>
 
     <article class="stat-card">
@@ -65,7 +61,6 @@
             WFH
         </span>
         <strong>{{ counts.wfh }}</strong>
-        <span class="stat-note">Working from home</span>
     </article>
 
     <article class="stat-card">
@@ -74,18 +69,18 @@
             Leave
         </span>
         <strong>{{ counts.leave }}</strong>
-        <span class="stat-note">On leave</span>
     </article>
 
-  <article class="stat-card">
-      <span class="stat-label">
-          <span class="status-dot other"></span>
-          Other
-      </span>
-      <strong>{{ counts.other }}</strong>
-  </article>
+    <article class="stat-card">
+        <span class="stat-label">
+            <span class="status-dot other"></span>
+            Other
+        </span>
+        <strong>{{ counts.other }}</strong>
+    </article>
 
 </section>
+
 
 
 <!-- FLOOR PLAN -->
@@ -294,6 +289,7 @@
                 <option>Available</option>
                 <option>WFH</option>
                 <option>Leave</option>
+                <option>Other</option>
 
             </select>
 
@@ -322,52 +318,52 @@
 
                 {% for emp in employees %}
 
-                    <tr
-                        class="employee-row"
-                        data-search="{{ (emp.name ~ ' ' ~ emp.seat_no ~ ' ' ~ emp.comment)|lower }}"
-                        data-status="{{ emp.status }}"
-                    >
+                <tr
+                    class="employee-row"
+                    data-search="{{ (emp.name ~ ' ' ~ emp.seat_no ~ ' ' ~ emp.view_comment)|lower }}"
+                    data-status="{{ emp.view_status }}"
+                >
 
-                        <td>
-                            <strong>{{ emp.seat_no }}</strong>
-                        </td>
+                    <td>
+                        <strong>{{ emp.seat_no }}</strong>
+                    </td>
 
-                        <td>{{ emp.name }}</td>
+                    <td>{{ emp.name }}</td>
 
-                        <td>
-                            {% if emp.row == 1 %}
-                                A Zone
-                            {% elif emp.row == 2 %}
-                                B Zone
-                            {% elif emp.row in [3, 4] %}
-                                C &amp; D Zone
-                            {% elif emp.row == 5 %}
-                                E Zone
-                            {% else %}
-                                Row {{ emp.row }}
-                            {% endif %}
-                        </td>
+                    <td>
+                        {% if emp.row == 1 %}
+                            A Zone
+                        {% elif emp.row == 2 %}
+                            B Zone
+                        {% elif emp.row in [3, 4] %}
+                            C &amp; D Zone
+                        {% elif emp.row == 5 %}
+                            E Zone
+                        {% else %}
+                            Row {{ emp.row }}
+                        {% endif %}
+                    </td>
 
-                        <td>
-                            <span class="pill {{ emp.status|lower }}">
-                                {{ emp.status }}
-                            </span>
-                        </td>
+                    <td>
+                        <span class="pill {{ emp.view_status|lower }}">
+                            {{ emp.view_status }}
+                        </span>
+                    </td>
 
-                        <td class="comment-cell">
-                            {{ emp.comment }}
-                        </td>
+                    <td class="comment-cell">
+                        {{ emp.view_comment }}
+                    </td>
 
-                        <td>
-                            <a
-                                class="table-action"
-                                href="{{ url_for('update', employee_id=emp.id) }}"
-                            >
-                                Edit
-                            </a>
-                        </td>
+                    <td>
+                        <a
+                            class="table-action"
+                            href="{{ url_for('update', employee_id=emp.id) }}"
+                        >
+                            Edit
+                        </a>
+                    </td>
 
-                    </tr>
+                </tr>
 
                 {% endfor %}
 

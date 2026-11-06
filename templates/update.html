@@ -22,15 +22,14 @@
                 <h1>{{ emp.seat_no }}</h1>
 
                 <p class="muted">
-                    Update the current seating information.
+                    Schedule your seating status for one or more days.
                 </p>
             </div>
 
-            <span class="pill {{ emp.status|lower }}">
-                {{ emp.status }}
+            <span class="pill {{ default_status|lower }}">
+                {{ default_status }}
             </span>
         </div>
-
 
         <div class="employee-summary">
 
@@ -45,34 +44,114 @@
 
         </div>
 
-
         <form method="post" class="edit-form">
 
-            <!-- SEAT STATUS -->
-            <label for="status">Seat status</label>
+            <p class="schedule-info">
+                Select the period during which this status should apply.
+                Both the start date and end date are included.
+            </p>
+
+            <!-- STATUS -->
+
+            <label for="status">
+                Seat status
+            </label>
 
             <select id="status" name="status" required>
 
                 <option value="Available"
-                    {% if emp.status == "Available" %}selected{% endif %}>
+                    {% if default_status == "Available" %}selected{% endif %}>
                     Available
                 </option>
 
                 <option value="WFH"
-                    {% if emp.status == "WFH" %}selected{% endif %}>
+                    {% if default_status == "WFH" %}selected{% endif %}>
                     WFH
                 </option>
 
                 <option value="Leave"
-                    {% if emp.status == "Leave" %}selected{% endif %}>
+                    {% if default_status == "Leave" %}selected{% endif %}>
                     Leave
                 </option>
-                <option value="Other" {% if emp.status == "Other" %}selected{% endif %}>Other</option>
+
+                <option value="Other"
+                    {% if default_status == "Other" %}selected{% endif %}>
+                    Other
+                </option>
 
             </select>
 
+            <!-- APPLY STATUS FOR -->
+
+            <label for="period">
+                Apply status for
+            </label>
+
+            <select id="period" name="period" required>
+
+                <option value="Whole day"
+                    {% if default_period == "Whole day" %}selected{% endif %}>
+                    Whole day
+                </option>
+
+                <option value="First half"
+                    {% if default_period == "First half" %}selected{% endif %}>
+                    First half
+                </option>
+
+                <option value="Second half"
+                    {% if default_period == "Second half" %}selected{% endif %}>
+                    Second half
+                </option>
+
+            </select>
+
+            <p class="date-help" id="periodHelp">
+                Whole day applies the selected status to both halves.
+            </p>
+
+            <!-- DATE RANGE -->
+
+            <div class="date-range-fields">
+
+                <div>
+                    <label for="start_date">
+                        Start date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="start_date"
+                        name="start_date"
+                        min="{{ operational_date }}"
+                        value="{{ operational_date }}"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="end_date">
+                        End date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="end_date"
+                        name="end_date"
+                        min="{{ operational_date }}"
+                        value="{{ operational_date }}"
+                        required
+                    >
+                </div>
+
+            </div>
+
+            <p class="date-help" id="dateHelp">
+                Your selected status will apply to the selected date.
+            </p>
 
             <!-- COMMENT -->
+
             <label for="comment">
                 Comment
                 <span class="label-note">
@@ -86,10 +165,10 @@
                 maxlength="500"
                 rows="4"
                 placeholder="Add a note about this seat…"
-            >{{ emp.comment }}</textarea>
-
+            >{{ default_comment }}</textarea>
 
             <!-- REPLACEMENT -->
+
             <label for="replacement">
                 Replacement employee
                 <span class="label-note">Optional</span>
@@ -99,12 +178,12 @@
                 id="replacement"
                 name="replacement"
                 maxlength="100"
-                value="{{ emp.replacement }}"
+                value="{{ default_replacement }}"
                 placeholder="Enter replacement name"
             >
 
-
             <!-- ACTIONS -->
+
             <div class="form-actions">
 
                 <a
@@ -118,7 +197,7 @@
                     class="btn btn-primary"
                     type="submit"
                 >
-                    Save changes
+                    Save schedule
                 </button>
 
             </div>
@@ -127,6 +206,130 @@
 
     </section>
 
+    <!-- UPCOMING SCHEDULES -->
+
+    <section class="edit-card schedule-list-card">
+
+        <div class="section-heading">
+            <div>
+                <h2>Scheduled</h2>
+                <p class="muted">
+                    Previously scheduled status periods for this seat.
+                </p>
+            </div>
+        </div>
+
+        {% if upcoming_schedules %}
+
+            <div class="schedule-list">
+
+                {% for schedule in upcoming_schedules %}
+
+                    <div class="schedule-item">
+
+                        <div>
+                            <strong>
+                                {{ schedule.start_date.strftime("%d %b %Y") }}
+                                –
+                                {{ schedule.end_date.strftime("%d %b %Y") }}
+                            </strong>
+
+                            <small>
+                                {{ schedule.period }}
+                            </small>
+
+                            <small>
+                                {{ schedule.comment or "No additional comment" }}
+                            </small>
+
+                            {% if schedule.replacement %}
+                                <small>
+                                    Replacement: {{ schedule.replacement }}
+                                </small>
+                            {% endif %}
+                        </div>
+
+                        <span class="pill {{ schedule.status|lower }}">
+                            {{ schedule.status }}
+                        </span>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <p class="muted">
+                No upcoming schedules for this seat.
+            </p>
+
+        {% endif %}
+
+    </section>
+
 </div>
+
+<script>
+    const startDate = document.getElementById("start_date");
+    const endDate = document.getElementById("end_date");
+    const dateHelp = document.getElementById("dateHelp");
+
+    const period = document.getElementById("period");
+    const periodHelp = document.getElementById("periodHelp");
+
+
+    function updateDateRange() {
+
+        endDate.min = startDate.value;
+
+        if (endDate.value && endDate.value < startDate.value) {
+            endDate.value = startDate.value;
+        }
+
+        if (startDate.value === endDate.value) {
+
+            dateHelp.textContent =
+                "Your selected status will apply to one day.";
+
+        } else {
+
+            dateHelp.textContent =
+                "Your selected status will apply to every day " +
+                "from the start date through the end date.";
+        }
+    }
+
+
+    function updatePeriodHelp() {
+
+        if (period.value === "Whole day") {
+
+            periodHelp.textContent =
+                "The selected status will apply to both halves of the day.";
+
+        } else if (period.value === "First half") {
+
+            periodHelp.textContent =
+                "The selected status will apply only to the first half. " +
+                "The second half will retain its existing status.";
+
+        } else {
+
+            periodHelp.textContent =
+                "The selected status will apply only to the second half. " +
+                "The first half will retain its existing status.";
+        }
+    }
+
+
+    startDate.addEventListener("change", updateDateRange);
+    endDate.addEventListener("change", updateDateRange);
+    period.addEventListener("change", updatePeriodHelp);
+
+    updateDateRange();
+    updatePeriodHelp();
+</script>
 
 {% endblock %}
